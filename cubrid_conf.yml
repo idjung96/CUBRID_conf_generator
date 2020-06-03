@@ -1,0 +1,29 @@
+# 지원할 종류: 싱글형, broker-server 분리형, HA 기본형, 기본형+리플리카
+# template conf 파일 작성 필요
+# 싱글: ha_mode=off
+broker: 
+  - broker1@svr1: rw
+# database.txt는 자동 생성할 내용
+  
+server:
+  - db1@svr1: sync
+
+#------------------
+# broker-server 분리형: ha_mode=off
+broker: 
+  - broker1@svr1: rw
+# database.txt는 자동 생성할 내용
+  
+server:
+  - db1@svr2: sync
+  
+#------------------
+# HA 기본형: ha_mode=on
+broker: 
+  - broker1@svr1: rw
+  - broker1@svr2: rw
+# database.txt는 자동 생성할 내용
+  
+server:
+  - db1@svr1: sync
+  - db1@svr2: sync
