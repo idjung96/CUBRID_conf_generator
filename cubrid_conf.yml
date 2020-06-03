@@ -1,12 +1,51 @@
+# 싱글
+svr1:
+  ip: "123.123.123.123"
+  brokers: 
+    - name: brk1
+      mode: rw
+      port: 33000
+    - name: cm
+      mode: rw
+      port: 34000
+  databases: 
+    - name: db1
+
+# 분리형
+svr1:
+  ip: "123.123.123.123"
+  brokers: 
+    - name: brk1
+      mode: rw
+      port: 33000
+  databases: 
+    - name: db1
+      sync_mode: sync
+      mode: master
+svr2:
+  ip: "123.123.123.124"
+  brokers: 
+    - name: brk1
+      mode: rw
+      port: 33000
+  databases: 
+    - name: db1
+      sync_mode: sync
+      mode: slave
+
 # 지원할 종류: 싱글형, broker-server 분리형, HA 기본형, 기본형+리플리카
 # template conf 파일 작성 필요
 # 싱글: ha_mode=off
+ip:
+  - svr1: "123.123.123.123"
+  - svr2: "123.123.123.124"
+#------------------
 broker: 
   - broker1@svr1: rw
 # database.txt는 자동 생성할 내용
   
 server:
-  - db1@svr1: sync
+  - db1@svr1
 
 #------------------
 # broker-server 분리형: ha_mode=off
@@ -15,7 +54,7 @@ broker:
 # database.txt는 자동 생성할 내용
   
 server:
-  - db1@svr2: sync
+  - db1@svr2
   
 #------------------
 # HA 기본형: ha_mode=on
