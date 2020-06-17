@@ -1,0 +1,31 @@
+---
+# type: separated (broker & server on 2 machines)
+ha_info: "cubrid@svr1:svr2"
+svr_info:
+  - name: svr1
+    ip: "123.123.123.123"
+    brokers: 
+      - name: brk1
+        mode: rw
+        port: 33000
+        db: db1
+      - name: cm
+        mode: rw
+        port: 34000
+        db: db1
+    databases: 
+      - name: db1
+  - name: svr1
+    ip: "123.123.123.124"
+    brokers: 
+      - name: brk1
+        mode: rw
+        port: 33000
+        db: db1
+      - name: cm
+        mode: rw
+        port: 34000
+        db: db1
+    databases: 
+      - name: db1
+...
