@@ -1,31 +1,37 @@
 ---
 # type: separated (broker & server on 2 machines)
-ha_info: "cubrid@svr1:svr2"
+# active-standby instead of master-slave
+# given by parameter
+# cubrid_home: '/home/cubrid1/CUBRID'
+# account: 'cubrid1'
+
+svc_name: 'mk_sep'
+max_clients: '200'
+app_ip:
+  - '132.132.132.132'
+  - '111.111.111.111'
+  - '133.133.133.133' 
 svr_info:
-  - name: svr1
-    ip: "123.123.123.123"
+  - name: 'svr1'
+    ip: '123.123.123.123'
     brokers: 
-      - name: brk1
-        mode: rw
-        port: 33000
-        db: db1
-      - name: cm
-        mode: rw
-        port: 34000
-        db: db1
+      - name: 'brk1'
+        mode: 'rw'
+        port: '33000'
+      - name: 'brk2'
+        mode: 'rw'
+        port: '34000'
     databases: 
-      - name: db1
-  - name: svr1
-    ip: "123.123.123.124"
+      - role: 'active'
+  - name: 'svr2'
+    ip: '123.123.123.124'
     brokers: 
-      - name: brk1
-        mode: rw
-        port: 33000
-        db: db1
-      - name: cm
-        mode: rw
-        port: 34000
-        db: db1
+      - name: 'brk1'
+        mode: 'rw'
+        port: '33000'
+      - name: 'brk2'
+        mode: 'rw'
+        port: '34000'
     databases: 
-      - name: db1
+      - role: 'standby'
 ...
