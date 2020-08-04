@@ -119,7 +119,7 @@ ha_db_list=%s
             sync_mode_str = ':'.join(sync_mode) 
             f.writelines(ha_conf_template % ('cubrid'+num_part, 'cubrid@'+ha_info['ha'], sync_mode_str, db_name))
             if 'replica' in ha_info:
-                f.writelines('ha_replica_list=cbrid@'+ha_info['replica'])
+                f.writelines('ha_replica_list=cubrid@'+ha_info['replica'])
         f.close()
     return True
 

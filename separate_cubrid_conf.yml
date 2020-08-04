@@ -14,24 +14,36 @@ app_ip:
 svr_info:
   - name: 'svr1'
     ip: '123.123.123.123'
-    brokers: 
-      - name: 'brk1'
-        mode: 'rw'
-        port: '33000'
-      - name: 'brk2'
-        mode: 'rw'
-        port: '34000'
-    databases: 
-      - role: 'active'
   - name: 'svr2'
-    ip: '123.123.123.124'
+    ip: '123.123.123.124'    
+role_info:
+  - db: 'db1'
+    ha: 'svr1:svr2'
+broker_info:
+  - location: 'svr1'
     brokers: 
       - name: 'brk1'
         mode: 'rw'
         port: '33000'
-      - name: 'brk2'
-        mode: 'rw'
+        min_cas: '20'
+        max_cas: '30'
+        svc_on_off: 'on'
+        db: 'db1'
+      - mode: 'rw'
+        name: 'brk2'
         port: '34000'
-    databases: 
-      - role: 'standby'
+        db: 'db1'
+  - location: svr2
+    brokers: 
+      - name: 'brk1'
+        mode: 'rw'
+        port: '33000'
+        min_cas: '20'
+        max_cas: '30'
+        svc_on_off: 'on'
+        db: 'db1'
+      - mode: 'rw'
+        name: 'brk2'
+        port: '34000'
+        db: 'db1'
 ...
