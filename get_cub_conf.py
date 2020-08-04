@@ -323,10 +323,10 @@ APPL_SERVER_MAX_SIZE    =70
 ACCESS_MODE             =RW    
     """
     if not 'master_shm_id' in setup_info:
-        master_shm_id = '3'
-        for i in range(0, 4-len(num_part)):
-            master_shm_id += '0'
-        master_shm_id += num_part
+        master_shm_id = '3'+ ('%04d'%int(num_part))
+        # for i in range(0, 4-len(num_part)):
+        #     master_shm_id += '0'
+        # master_shm_id += num_part
         setup_info['master_shm_id'] = master_shm_id
     fp.write( broker_conf % (setup_info["master_shm_id"], setup_info["cubrid_home"]))
     fp.write( broker_qe_so_conf % ('20'+num_part+'40', '20'+num_part+'40', setup_info["cubrid_home"]))
