@@ -58,6 +58,7 @@ def make_setup_dir(setup_info):
     for t_item in setup_info['svr_info']:
         # unique directory name because parent directory name is changed
         os.mkdir(t_item['name'])
+    os.mkdir('common')
     
     return dir_name        
 
@@ -90,7 +91,7 @@ def generate_databases_file(setup_info):
 
 # all server have same hosts file
 def generate_hosts_file(setup_info):    
-    f = open('hosts','a+')
+    f = open(os.path.join('common','hosts'),'a+')
     for t_item in setup_info['svr_info']:
         f.writelines(t_item['ip']+'    '+t_item['name']+'\n')
     f.close()           
@@ -152,17 +153,30 @@ def generate_broker_acl_file(setup_info):
 
     for b_item in setup_info['broker_info']:
         f = open(os.path.join(b_item['location'],'broker.access'),'a+')
-        f.write('[%qe_so]\n*\n\n')
-        f.write('[%qe_rw]\n*\n\n') 
+        f.write('[%qe_so]\n*:dba:pcip.txt\n\n')
+        f.write('[%qe_rw]\n*:dba:pcip.txt\n\n') 
         for s_item in b_item['brokers']:
             broker_name = s_item['name']+'_'+s_item['mode']+'_'+s_item['db']
-            acl_info = list(setup_info['app_ip'])
-            acl_info.insert(0,'[%%%s]' % broker_name)
-            acl_info.append('\n')
-            acl_str = "\n".join(acl_info)
-            f.write(acl_str)
-        f.close()         
-    
+            f.write('[%%%s]\n' % broker_name)
+            f.write('%s:%s:wasip.txt\n' %(s_item['db'], s_item['db']))
+            # acl_info = list(setup_info['app_ip'])
+            # acl_info.insert(0,'[%%%s]' % broker_name)
+            # acl_info.append('\n')
+            # acl_str = "\n".join(acl_info)
+            # f.write(acl_str)
+        f.close()     
+            
+    for b_item in setup_info['broker_info']:
+        f = open(os.path.join(b_item['location'],'pcip.txt'),'a+')
+        for ip in setup_info['pc_ip']:
+            f.write(ip + '\n')
+        f.close()
+        
+        f = open(os.path.join(b_item['location'],'wasip.txt'),'a+')
+        for ip in setup_info['app_ip']:
+            f.write(ip + '\n')
+        f.close()
+            
     return True
 
 def get_valid_max_clients(setup_info, database):
