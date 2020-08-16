@@ -118,7 +118,8 @@ ha_db_list=%s
             ha_svr = ha_info['ha'].split(':')
             sync_mode = ['sync'] * (len(ha_svr))
             sync_mode_str = ':'.join(sync_mode) 
-            f.writelines(ha_conf_template % ('cubrid'+num_part, 'cubrid@'+ha_info['ha'], sync_mode_str, db_name))
+            ha_port_id = '599'+ ('%02d'%int(num_part))
+            f.writelines(ha_conf_template % (ha_port_id, 'cubrid@'+ha_info['ha'], sync_mode_str, db_name))
             if 'replica' in ha_info:
                 f.writelines('ha_replica_list=cubrid@'+ha_info['replica'])
         f.close()
