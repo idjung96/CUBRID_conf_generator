@@ -119,6 +119,7 @@ ha_db_list=%s
             sync_mode = ['sync'] * (len(ha_svr))
             sync_mode_str = ':'.join(sync_mode) 
             ha_port_id = '599'+ ('%02d'%int(num_part))
+            setup_info['ha_port_id'] = ha_port_id
             f.writelines(ha_conf_template % (ha_port_id, 'cubrid@'+ha_info['ha'], sync_mode_str, db_name))
             if 'replica' in ha_info:
                 f.writelines('ha_replica_list=cubrid@'+ha_info['replica'])
@@ -244,7 +245,7 @@ def generate_broker_conf_file(setup_info):
         if not 'brokers' in b_item:
             continue
         if not 'location' in b_item:
-            continue
+            continue 
         
         f = open(os.path.join(b_item['location'],'cubrid_broker.conf'),'a+')
         make_broker_common_conf(f, setup_info, num_part)
@@ -348,6 +349,25 @@ ACCESS_MODE             =RW
     fp.write( broker_qe_rw_conf % ('20'+num_part+'50', '20'+num_part+'50', setup_info["cubrid_home"]))
 
     return True
+
+def generate_firewalld_conf_file(setup_info):
+    for s_item in setup_info['svr_info']:
+        cubrid_ports = [setup_info['cubrid_port_id'], setup_info['ha_port_id'], '7', '8001', '8002']
+
+        f = open(os.path.join(s_item['name'],'firewalld-control.yml'),'a+')
+
+        for b_items in setup_info['broker_info']:
+            if b_items['location'] == s_item['name']:
+                continue
+            for b_item in b_items['brokers']:
+                cubrid_ports.append(b_item['port'])
+    
+        for port in cubrid_ports:
+            f.write('- firewalld:\n')
+            f.write('    zone: public\n')
+            f.write('    port: %s/tcp\n' % port)
+            f.write('    permanent: yes\n')
+            f.write('    state: enabled\n\n')
 
 def is_valid_conf(setup_info):
     if not 'account' in setup_info:
@@ -462,3 +482,4 @@ if __name__=="__main__":
     generate_broker_acl_file(in_yaml)
     generate_databases_file(in_yaml)
     generate_ha_conf_file(in_yaml)
+    generate_firewalld_conf_file(in_yaml)

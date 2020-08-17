@@ -4,6 +4,7 @@
 # given by parameter
 # cubrid_home: '/home/cubrid1/CUBRID'
 # account: 'cubrid1'
+# svr_info: all ip address of server
 
 svc_name: 'basic'
 max_clients: '200'
@@ -47,6 +48,6 @@ broker_info:
         db: 'db1'
       - mode: 'rw'
         name: 'brk2'
-        port: '34000'
+        port: '35000'
         db: 'db1'
 ...
