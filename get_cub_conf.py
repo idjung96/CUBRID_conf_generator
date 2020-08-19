@@ -361,13 +361,23 @@ def generate_firewalld_conf_file(setup_info):
                 continue
             for b_item in b_items['brokers']:
                 cubrid_ports.append(b_item['port'])
-    
+        f.write('- name: add port to firewalld\n')
+        f.write('  firewalld:\n')
+        f.write('    zone: public\n')
+        f.write('    permanent: yes\n')
+        f.write('    port: "{{ item }}"\n')
+        f.write('    state: enabled\n')
+        f.write('  loop:\n')
+
         for port in cubrid_ports:
-            f.write('- firewalld:\n')
-            f.write('    zone: public\n')
-            f.write('    port: %s/tcp\n' % port)
-            f.write('    permanent: yes\n')
-            f.write('    state: enabled\n\n')
+            f.write('    - %s/tcp\n' % port)
+        f.write('\n')
+
+        f.write('- name: restart firewalld\n')
+        f.write('  systemd:\n')
+        f.write('    state: restarted\n')
+        f.write('    daemon_reload: yes\n')
+        f.write('    name: firewalld\n')
 
 def is_valid_conf(setup_info):
     if not 'account' in setup_info:

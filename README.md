@@ -9,5 +9,10 @@
 2. ansible parameter 파일 생성   
 3. ansible playbook 실행
 
+pgrep 설치
+
+yum install gcc, python-devel
+pip3 install psutil
+
 
 
