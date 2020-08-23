@@ -1,0 +1,25 @@
+---
+# todo: make simple urls for CUBRID repository
+# todo: gen config
+# todo: deploy config
+- hosts: all
+  name: cubrid installer
+  vars:
+# modifiable start --------------------------
+    cubrid_account: "cubrid1"
+    config_dir: "/root/.ansible"
+    cubrid_ver: "10.2"
+    db_name: basic
+    create_db: true
+# modifiable end ---------------------------
+    cubrid_platform: "x86_64"
+    groups_to_create:
+      - name: "cubrid"
+        gid: "10000"
+    users:
+      - username: "{{ cubrid_account }}"
+        name: "{{ cubrid_account }}"
+        group: 'cubrid'
+  roles:
+    - singleplatform-eng.users
+    - cubrid.installer

@@ -1,0 +1,229 @@
+---
+# tasks file for cubrid.installer
+
+- name: "add cubrid environment variable"
+  become: yes
+  blockinfile:
+    dest: /home/{{ cubrid_account }}/.bashrc
+    block: |
+          CUBRID=$HOME/CUBRID
+          CUBRID_DATABASES=$CUBRID/databases
+          LD_LIBRARY_PATH=$CUBRID/lib:$LD_LIBRARY_PATH
+          SHLIB_PATH=$LD_LIBRARY_PATH
+          LIBPATH=$LD_LIBRARY_PATH
+          PATH=$CUBRID/bin:$CUBRID/cubridmanager:$PATH
+
+          export CUBRID
+          export CUBRID_DATABASES
+          export LD_LIBRARY_PATH
+          export SHLIB_PATH
+          export LIBPATH
+          export PATH
+
+- name: "stat cubrid installed"
+  stat: path=/home/{{ cubrid_account }}/CUBRID
+  register: cubrid_stat
+
+- name: "stat cubrid binary"
+  stat: path=/home/{{ cubrid_account }}/{{ cubrid_file }}
+  register: bin_stat
+
+- name: "stat db file"
+  stat: path=/home/{{ cubrid_account }}/DB
+  register: db_stat
+
+#- name: "check cub_broker"
+#  shell: "pgrep cub_broker"
+#  ignore_errors: yes
+#  register: pids_cub_broker
+
+#- name: "check cub_master"
+#  shell: "pgrep cub_master"
+#  ignore_errors: yes
+#  register: pids_cub_master
+
+- name: "set hostname"
+  shell: "hostnamectl set-hostname {{ inventory_hostname }}"
+
+- name: "download CUBRID_Engine"
+  become: yes
+  become_user: "{{ cubrid_account }}"
+  get_url:
+    url: "{{ cubrid_url }}"
+    dest: /home/{{ cubrid_account }}
+  when: bin_stat.stat.exists == false
+
+- name: "move current binary to backup"
+  become: yes
+  become_user: "{{ cubrid_account }}"
+  command: mv /home/{{ cubrid_account }}/CUBRID /home/{{ cubrid_account }}/CUBRID_{{ ansible_date_time.iso8601_basic_short }}
+  when: cubrid_stat.stat.exists == true
+
+- name: "unarchive CUBRID tar.gz"
+  become: yes
+  become_user: "{{ cubrid_account }}"
+  unarchive:
+    src: "/home/{{ cubrid_account }}/{{ cubrid_file }}"
+    dest: "/home/{{ cubrid_account }}"
+
+- name: "copy old databases.txt"
+  become: yes
+  become_user: "{{ cubrid_account }}"
+  command: cp -a /home/{{ cubrid_account }}/CUBRID_{{ ansible_date_time.iso8601_basic_short }}/databases /home/{{ cubrid_account }}/CUBRID
+  when: cubrid_stat.stat.exists == true
+
+- name: "create CUBRID/databases dir"
+  become: yes
+  become_user: "{{ cubrid_account }}"
+  file:
+    path: /home/{{ cubrid_account }}/CUBRID/databases
+    state: directory
+    mode: 0755
+    group: cubrid
+    owner: "{{ cubrid_account }}"
+  when: cubrid_stat.stat.exists == false
+
+- name: "create DB dir"
+  become: yes
+  become_user: "{{ cubrid_account }}"
+  file:
+    path: /home/{{ cubrid_account }}/DB/log
+    state: directory
+    mode: 0755
+    group: cubrid
+    owner: "{{ cubrid_account }}"
+  when: db_stat.stat.exists == false
+
+- name: "create db"
+  become: yes
+  become_user: "{{ cubrid_account }}"
+  shell: "source /home/{{ cubrid_account }}/.bashrc;cubrid createdb --db-volume-size=1G --log-volume-size=200M -F /home/{{ cubrid_account }}/DB -L /home/{{ cubrid_account }}/DB/log {{ db_name }} ko_KR.utf8"
+  when: create_db == true and db_stat.stat.exists == false
+
+- name: "distribute config file"
+  become: yes
+  become_user: "{{ cubrid_account }}"
+  copy:
+    src: "{{ config_dir }}/files/{{ inventory_hostname}}/"
+    dest: "/home/{{ cubrid_account }}/conf"
+
+- name: "distribute hosts file"
+  become: yes
+  become_user: "{{ cubrid_account }}"
+  copy:
+    src: "{{ config_dir }}/files/common/"
+    dest: "/home/{{ cubrid_account }}/conf"
+
+- name: "copy cubrid/databases file"
+  become: yes
+  become_user: "{{ cubrid_account }}"
+  copy:
+    src: "/home/{{ cubrid_account }}/conf/databases.txt"
+    dest: "/home/{{ cubrid_account }}/CUBRID/databases/"
+    remote_src: yes
+
+- name: "copy cubrid/conf file"
+  become: yes
+  become_user: "{{ cubrid_account }}"
+  copy: 
+    src: "/home/{{ cubrid_account }}/conf/{{ item }}"
+    dest: "/home/{{ cubrid_account }}/CUBRID/conf/"
+    remote_src: yes
+  with_items:
+    - "broker.access"
+    - "db.access"
+    - "cubrid.conf"
+    - "cubrid_broker.conf"
+    - "cubrid_ha.conf"
+    - "wasip.txt"
+    - "pcip.txt"
+
+- name: "check /etc/hosts"
+  become: yes
+  become_user: "{{ cubrid_account }}"
+  shell: "head -n 1 /home/{{ cubrid_account }}/conf/hosts|awk '{print $2;}'|grep -f /dev/stdin /etc/hosts"
+  register: check_etc
+  ignore_errors: true
+
+- name: "output check_etc"
+  debug:
+    var: "{{ check_etc.stdout_lines }}"
+
+- name: "modify /etc/hosts"
+  shell: cat /home/{{ cubrid_account }}/conf/hosts >> /etc/hosts
+  when: check_etc is failed
+
+- name: "add firewalld policy"
+  include: "{{ playbook_dir }}/files/{{ inventory_hostname }}/firewalld-control.yml"
+  
+#- name: "cubrid broker start"
+#  become: yes
+#  become_user: "{{ cubrid_account }}"
+#  shell: "source ~/.bashrc;cubrid broker start"
+
+- name: "get random time"
+  set_fact:
+    time_to_wait: "{{ 5 | random }}"
+
+- name: "output time_to_wait"
+  debug:
+    var: "{{ time_to_wait }}"
+
+- name: "wait before starting heartbeat"
+  pause: seconds={{ time_to_wait }}
+
+- name: "cubrid service start"
+  become: yes
+  become_user: "{{ cubrid_account }}"
+  shell: "source ~/.bashrc;cubrid service start"
+
+- name: "wait before starting heartbeat"
+  pause: seconds={{ time_to_wait }}
+
+- name: "cubrid heartbeat start"
+  become: yes
+  become_user: "{{ cubrid_account }}"
+  shell: "source ~/.bashrc;nohup cubrid heartbeat start"
+
+- name: "find_active_database"
+  become: yes
+  become_user: "{{ cubrid_account }}"
+  shell: "source ~/.bashrc;cubrid changemode {{ db_name }}@localhost | grep active"
+  register: db_mode
+  ignore_errors: true
+
+#- name: "output db_mode"
+#  debug:
+#    var: "{{ db_mode.stdout_lines }}"
+
+- name: "create test table"
+  become: yes
+  become_user: "{{ cubrid_account }}"
+  shell: "source ~/.bashrc;csql -c 'CREATE TABLE t ( id INT PRIMARY KEY );' {{ db_name }}@localhost"
+  when: db_mode is not failed
+
+- name: "select count from test table"
+  become: yes
+  become_user: "{{ cubrid_account }}"
+  shell: "source ~/.bashrc;csql -c 'SELECT count(*) FROM t;' {{ db_name }}@localhost|grep '0 row selected'"
+  register: first_cnt
+  when: db_mode is failed
+  ignore_errors: true
+
+- name: "insert test data"
+  become: yes
+  become_user: "{{ cubrid_account }}"
+  shell: "source ~/.bashrc;csql -c 'INSERT INTO t VALUES (1);' {{ db_name }}@localhost"
+  when: db_mode is not failed
+
+- name: "select count from test table"
+  become: yes
+  become_user: "{{ cubrid_account }}"
+  shell: "source ~/.bashrc;csql -c 'SELECT count(*) FROM t;' {{ db_name }}@localhost|grep '1 row selected'"
+  register: second_cnt
+  when: db_mode is failed
+
+- name: "check ha status"
+  debug:
+    msg: "HA is completed"
+  when: second_cnt.changed == true

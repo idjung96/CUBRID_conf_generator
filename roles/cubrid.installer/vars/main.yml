@@ -1,0 +1,4 @@
+---
+# vars file for cubrid.installer
+cubrid_file: "CUBRID-{{ cubrid_ver }}-latest-Linux.{{ cubrid_platform }}.tar.gz"
+cubrid_url: "http://ftp.cubrid.org/CUBRID_Engine/{{ cubrid_ver }}/CUBRID-{{ cubrid_ver }}-latest-Linux.{{ cubrid_platform }}.tar.gz"
