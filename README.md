@@ -21,9 +21,10 @@ $ ssh-copy-id ~/.ssh/id_rsa.pub root@center
 ```
 
 ### Installation ###
-1. install singleplatform-eng.users role
+1. install role
 ```
 $ ansible-galaxy install singleplatform-eng.users
+$ansible-galaxy install idjung96.cubrid_installer
 ```
 
 2. install python3
