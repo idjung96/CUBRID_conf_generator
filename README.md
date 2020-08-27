@@ -32,7 +32,7 @@ $ yum install python3 python3-devel
 ```
 
 ### Practice ###
-1. make configuration file (.yml)
+1. make a base file for generating configuration(.yml)
 ```
 $ vi exam.yml
 svc_name: 'basic'
@@ -46,12 +46,12 @@ pc_ip:
 ...
 ```
 
-2. generate configuration file for cubrid
+2. generate configuration files for cubrid
 ```
 $ python3 get_cub_conf.py cubrid1 svc.yml
 ```
 
-3. copy configuratoin file to 'files' folder in ansible folder 
+3. copy configuration filea to 'files' folder in ansible folder 
 ```
 $ cp -a svc_folder/* ~/.ansible/files/
 ```
