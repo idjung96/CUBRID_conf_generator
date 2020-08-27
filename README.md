@@ -17,7 +17,8 @@ $ vi /etc/hosts
 ```
 2. copy ssh key file with 'ssh-copy-id' 
 ```
-$ ssh-copy-id ~/.ssh/id_rsa.pub root@center
+$ ssh-copy-id -i ~/.ssh/id_rsa.pub root@center
+$ ssh-copy-id -i ~/.ssh/id_rsa.pub root@cubrid1
 ```
 
 ### Installation ###
