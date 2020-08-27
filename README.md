@@ -89,7 +89,7 @@ $ vi play.yml
         group: 'cubrid'
   roles:
     - singleplatform-eng.users
-    - cubrid.installer
+    - idjung96.cubrid_installer
 ```
 
 6. execute ansible with playbook
