@@ -34,7 +34,7 @@ $ yum install python3 python3-devel
 ```
 
 ### Practice ###
-1. make a base file for generating configuration(.yml)
+1. make a base file for generating configuration(.yml) [example:[base_file.md](https://github.com/idjung96/ansible_for_cubrid/blob/master/base_file.md)]
 ```
 $ vi exam.yml
 svc_name: 'basic'
@@ -66,7 +66,7 @@ center
 cubrid1
 ```
 
-5. make playbook file (.yml)
+5. make playbook file (.yml) [example:[exam_playbook.md](https://github.com/idjung96/ansible_for_cubrid/blob/master/exam_playbook.md)]
 ```
 $ vi play.yml
 - hosts: all
