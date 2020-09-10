@@ -96,3 +96,6 @@ $ vi play.yml
 ```
 $ ansible-playbook -i hosts play.yml
 ```
+
+### License ###
+GPL v3
