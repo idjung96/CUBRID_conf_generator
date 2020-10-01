@@ -1,4 +1,4 @@
-# ansible_for_cubrid
+# generator_for_conf_of_CUBRID
 
 ### Background ###
 The most useful feature of CUBRID is HA (High Availability), which can provide uninterrupted service even when a failure occurs in H/W, OS, and network. CUBRID HA ensures database synchronization among multiple servers when providing service. 
