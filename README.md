@@ -34,6 +34,9 @@ $ yum install python3 python3-devel
 ```
 
 ### Practice ###
+
+Demonstration: ([Youtube link](https://youtu.be/NWvkxOe3CLk), Korean subtitles)
+
 1. make a base file for generating configuration(.yml) [example:[base_file.md](https://github.com/idjung96/ansible_for_cubrid/blob/master/base_file.md)]
 ```
 $ vi exam.yml
