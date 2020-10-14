@@ -1,0 +1,66 @@
+---
+# type: separated (broker & server on 2 machines)
+# active-standby instead of master-slave
+# given by parameter
+# cubrid_home: '/home/cubrid1/CUBRID'
+# account: 'cubrid1'
+
+svc_name: 'svc_name_db'
+max_clients: '300'
+pc_ip:
+  - '10.0.2.10'
+app_ip:
+  - '10.0.2.20'
+  - '111.111.111.111'
+  - '133.133.133.133' 
+svr_info:
+  - name: 'cubrid_svr0'
+    ip: '10.0.2.10'
+  - name: 'cubrid_svr1'
+    ip: '10.0.2.20'
+  - name: 'cubrid_svr2'
+    ip: '10.0.2.30'    
+role_info:
+  - db: 'svc_name_db'
+    ha: 'cubrid_svr1:cubrid_svr2:cubrid_svr0'
+broker_info:
+  - location: 'cubrid_svr0'
+    brokers: 
+      - name: 'brk1'
+        mode: 'rw'
+        port: '33000'
+        min_cas: '20'
+        max_cas: '30'
+        svc_on_off: 'on'
+        db: svc_name_db
+      - mode: 'rw'
+        name: 'brk2'
+        port: '34000'
+        db: svc_name_db
+  - location: 'cubrid_svr1'
+    brokers: 
+      - name: 'brk1'
+        mode: 'rw'
+        port: '33000'
+        min_cas: '20'
+        max_cas: '30'
+        svc_on_off: 'on'
+        db: svc_name_db
+      - mode: 'rw'
+        name: 'brk2'
+        port: '34000'
+        db: svc_name_db
+  - location: 'cubrid_svr2'
+    brokers: 
+      - name: 'brk1'
+        mode: 'rw'
+        port: '33000'
+        min_cas: '20'
+        max_cas: '30'
+        svc_on_off: 'on'
+        db: svc_name_db
+      - mode: 'rw'
+        name: 'brk2'
+        port: '34000'
+        db: svc_name_db
+...
