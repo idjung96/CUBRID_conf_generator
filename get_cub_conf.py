@@ -92,6 +92,8 @@ def generate_databases_file(setup_info):
 # all server have same hosts file
 def generate_hosts_file(setup_info):    
     f = open(os.path.join('common','hosts'),'a+')
+    f.writelines("127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4\n")
+    f.writelines("::1         localhost localhost.localdomain localhost6 localhost6.localdomain6\n")
     for t_item in setup_info['svr_info']:
         f.writelines(t_item['ip']+'    '+t_item['name']+'\n')
     f.close()           
@@ -219,7 +221,7 @@ ha_mode=%s
             force_remove_log_archives = 'yes'
             ha_mode = 'off'
         elif 'replica' in db_role:
-            force_remove_log_archives = 'replica'
+            force_remove_log_archives = 'no'
             ha_mode = 'replica'
         elif 'active' in db_role  or 'standby' in db_role:
             force_remove_log_archives = 'no'
@@ -270,8 +272,7 @@ TIME_TO_KILL            =120
 SESSION_TIMEOUT         =300
 KEEP_CONNECTION         =AUTO
 CCI_DEFAULT_AUTOCOMMIT  =ON
-ACCESS_MODE             =%s    
-    '''    
+ACCESS_MODE             =%s'''    
     if not 'mode' in broker_info:
         broker_info['mode'] = 'rw'    
     if not 'svc_on_off' in broker_info:
@@ -288,6 +289,11 @@ ACCESS_MODE             =%s
     fp.write( broker_template % (broker_info['svc_on_off'], broker_info['port'], 
                                  broker_info['min_cas'], broker_info['max_cas'], 
                                  broker_info['port'], broker_info['mode']))
+    if 'replica_only' in broker_info:
+        fp.write('\nREPLICA_ONLY            =%s' % broker_info['replica_only'])
+    if 'preferred_hosts' in broker_info:
+        fp.write('\nPREFERRED_HOSTS         =%s' % broker_info['preferred_hosts'])
+    fp.write('\n')
     
     return True
       
@@ -352,7 +358,7 @@ ACCESS_MODE             =RW
 
 def generate_firewalld_conf_file(setup_info):
     for s_item in setup_info['svr_info']:
-        cubrid_ports = [setup_info['cubrid_port_id'], setup_info['ha_port_id'], '7', '8001', '8002']
+        cubrid_ports = [setup_info['cubrid_port_id'], setup_info['ha_port_id'], '7', '8001', '8002', '20140', '20150']
 
         f = open(os.path.join(s_item['name'],'firewalld-control.yml'),'a+')
 
