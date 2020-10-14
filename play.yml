@@ -1,7 +1,5 @@
 ---
 # todo: make simple urls for CUBRID repository
-# todo: gen config
-# todo: deploy config
 - hosts: all
   name: cubrid installer
   vars:

@@ -1,18 +1,104 @@
-# ansible_for_cubrid
+# CUBRID_conf_generator
 
-[prerequisite]
-1. Ansible에 host 등록
-2. 각 호스트에 ssh-copy-id 실행해서 키 복사
+### Background ###
+The most useful feature of CUBRID is HA (High Availability), which can provide uninterrupted service even when a failure occurs in H/W, OS, and network. CUBRID HA ensures database synchronization among multiple servers when providing service. 
+CUBRID HA is supported by the CUBRID engine, so it can be used without a separate package or S/W. In addition, there is no need to purchase additional licenses, so there is no need for IT infrastructure costs.
+CUBRID HA is the most outstanding feature of CUBRID, but it is difficult to use because there are many configuration file such as databases.txt, cubrid_ha.conf and so on.
 
-[install process]
-1. CUBRID installment YAML 생성
-2. ansible parameter 파일 생성   
-3. ansible playbook 실행
+### Object ###
+The object is to develop tools that supports CUBRID HA operation such as DB construction, upgrade, and DB reconstruction so that many software developers can easily use CUBRID HA.
 
-pgrep 설치
+### Preparation ###
+1. add server info to /etc/hosts 
+```
+$ vi /etc/hosts
+10.0.2.10   center
+10.0.2.20   cubrid1
+```
+2. copy ssh key file with 'ssh-copy-id' 
+```
+$ ssh-copy-id -i ~/.ssh/id_rsa.pub root@center
+$ ssh-copy-id -i ~/.ssh/id_rsa.pub root@cubrid1
+```
 
-yum install gcc, python-devel
-pip3 install psutil
+### Installation ###
+1. install role
+```
+$ ansible-galaxy install singleplatform-eng.users
+$ ansible-galaxy install idjung96.cubrid_installer
+```
 
+2. install python3
+```
+$ yum install python3 python3-devel
+```
 
+### Practice ###
 
+Demonstration: ([Youtube link](https://youtu.be/NWvkxOe3CLk), Korean subtitles)
+
+1. make a base file for generating configuration(.yml) [example:[base_file.md](https://github.com/idjung96/ansible_for_cubrid/blob/master/base_file.md)]
+```
+$ vi exam.yml
+svc_name: 'basic'
+max_clients: '200'
+pc_ip:
+  - '10.0.2.10'
+  - '134.134.*'
+...
+        port: '34000'
+        db: 'basic'
+...
+```
+
+2. generate configuration files for cubrid
+```
+$ python3 get_cub_conf.py cubrid1 svc.yml
+```
+
+3. copy configuration filea to 'files' folder in ansible folder 
+```
+$ cp -a svc_folder/* ~/.ansible/files/
+```
+
+4. make hosts file
+```
+$ vi hosts
+[cubrid]
+center
+cubrid1
+```
+
+5. make playbook file (.yml) [example:[exam_playbook.md](https://github.com/idjung96/ansible_for_cubrid/blob/master/exam_playbook.md)]
+```
+$ vi play.yml
+- hosts: all
+  name: cubrid installer
+  vars:
+# modifiable start --------------------------
+    cubrid_account: "cubrid1"
+    config_dir: "/root/.ansible"
+    cubrid_ver: "10.2"
+    db_name: basic
+    create_db: true
+# modifiable end ---------------------------
+    cubrid_platform: "x86_64"
+    groups_to_create:
+      - name: "cubrid"
+        gid: "10000"
+    users:
+      - username: "{{ cubrid_account }}"
+        name: "{{ cubrid_account }}"
+        group: 'cubrid'
+  roles:
+    - singleplatform-eng.users
+    - idjung96.cubrid_installer
+```
+
+6. execute ansible with playbook
+```
+$ ansible-playbook -i hosts play.yml
+```
+
+### License ###
+GPL v3
