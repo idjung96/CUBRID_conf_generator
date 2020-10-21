@@ -7,13 +7,8 @@
 
 svc_name: 'basic'
 max_clients: '200'
-pc_ip:
-  - '10.0.2.10'
-  - '134.134.*'
-app_ip:
-  - '10.0.2.20'
-  - '111.111.111.111'
-  - '133.133.133.133' 
+pc_ip: '10.0.2.10;134.134.*'
+app_ip: '10.0.2.20;111.111.111.111;133.133.133.133'
 svr_info:
   - name: 'center'
     ip: '10.0.2.10'
@@ -36,7 +31,7 @@ broker_info:
         name: 'brk2'
         port: '34000'
         db: 'basic'
-  - location: cubrid1
+  - location: 'cubrid1'
     brokers: 
       - name: 'brk1'
         mode: 'rw'
