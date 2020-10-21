@@ -42,9 +42,7 @@ Demonstration: ([Youtube link](https://youtu.be/NWvkxOe3CLk), Korean subtitles)
 $ vi exam.yml
 svc_name: 'basic'
 max_clients: '200'
-pc_ip:
-  - '10.0.2.10'
-  - '134.134.*'
+pc_ip: '10.0.2.10;134.134.*'
 ...
         port: '34000'
         db: 'basic'
