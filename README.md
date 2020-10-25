@@ -33,6 +33,11 @@ $ ansible-galaxy install idjung96.cubrid_installer
 $ yum install python3 python3-devel
 ```
 
+3. install python library
+```
+$ pip install PyYAML
+```
+
 ### Practice ###
 
 Demonstration: ([Youtube link](https://youtu.be/NWvkxOe3CLk), Korean subtitles)
